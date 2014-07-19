@@ -1,0 +1,24 @@
+{
+  "name": "pimatic-weather",
+  "description": "Imports weather data as devices",
+  "author": "Jose Castro Leon <josecastroleon@gmail.com>",
+  "main": "weather",
+  "files": [
+    "weather.coffee",
+    "README.md",
+    "weather-config-schema.coffee"
+  ],
+  "version": "0.0.1",
+  "homepage": "http://github.com/josecastroleon/pimatic-weather",
+  "private": true,
+  "dependencies": {
+    "weather-js": "^0.1.1"
+  },
+  "peerDependencies": {
+    "pimatic": "0.7.*"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}
