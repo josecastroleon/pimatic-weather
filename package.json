@@ -9,13 +9,14 @@
     "weather-config-schema.coffee"
   ],
   "version": "0.0.1",
-  "homepage": "http://github.com/josecastroleon/pimatic-weather",
+  "homepage": "http://your-plugin-website",
   "private": true,
+  "configSchema": "weather-config-schema.coffee",
   "dependencies": {
     "weather-js": "^0.1.1"
   },
   "peerDependencies": {
-    "pimatic": "0.7.*"
+    "pimatic": "0.8.*"
   },
   "engines": {
     "node": ">0.8.x",

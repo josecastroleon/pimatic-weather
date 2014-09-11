@@ -1,16 +1,44 @@
 module.exports = (env) ->
 
+  Promise = env.require 'bluebird'
   convict = env.require "convict"
-  Q = env.require 'q'
   assert = env.require 'cassert'
   
   weatherLib = require "weather-js"
 
   class Weather extends env.plugins.Plugin
     init: (app, @framework, @config) =>
-      @location = config.location
+      deviceConfigDef = require("./device-config-schema")
+
+      @framework.deviceManager.registerDeviceClass("WeatherDevice", {
+        configDef: deviceConfigDef.WeatherDevice, 
+        createCallback: (config) => new WeatherDevice(config)
+      })
+
+  class WeatherDevice extends env.devices.Device
+    attributes:
+      temperature:
+        description: "the messured temperature"
+        type: "number"
+        unit: '°C'
+      humidity:
+        description: "The actual degree of Humidity"
+        type: "number"
+        unit: '%'
+      status:
+        description: "The actual status"
+        type: "string"
+
+    temperature: 0.0
+    humidity: 0.0
+    status: ''
+
+    constructor: (@config) ->
+      @id = config.id
+      @name = config.name
       @degreeType = config.degreeType
       @timeout = config.timeout
+      super()
 
       @requestForecast()
       setInterval( =>
@@ -20,81 +48,18 @@ module.exports = (env) ->
 
     requestForecast: () =>
       weatherLib.find
-        search: @location
+        search: @name
         degreeType: @degreeType
       , (err, result) =>
         env.logger.error("err") if err
-        @receiveForecast(result[0]) if result
+        if result
+          @emit "temperature", Number result[0].current.temperature
+          @emit "humidity", Number result[0].current.humidity 
+          @emit "status", result[0].current.skytext
 
-    receiveForecast: (forecast) =>
-      @emit "weather", forecast
-
-    createDevice: (config) =>
-      switch config.class
-        when "WeatherTemperature"
-          @framework.registerDevice(new WeatherTemperature config)
-          return true
-        when "WeatherHumidity"
-          @framework.registerDevice(new WeatherHumidity config)
-          return true
-        when "WeatherStatus"
-          @framework.registerDevice(new WeatherStatus config)
-          return true
-        else
-          return false
-
-  class WeatherTemperature extends env.devices.TemperatureSensor
-    temperature: null
-
-    constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      super()
-      plugin.on "weather", (forecast) =>
-        temperature = forecast.current.temperature
-        @temperature = temperature
-        @emit "temperature", temperature
-
-    getTemperature: -> Q(@temperature)
-
-  class WeatherHumidity extends env.devices.Sensor
-    attributes:
-      humidity:
-        description: "The actual degree of Humidity"
-        type: Number
-        unit: '%'
-        
-    humidity: null
-        
-    constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      super()
-      plugin.on "weather", (forecast) =>
-        humidity = forecast.current.humidity
-        @humidity = humidity
-        @emit "humidity", humidity
-      
-    getHumidity: -> Q(@humidity)
-
-  class WeatherStatus extends env.devices.Sensor
-    attributes:
-      status:
-        description: "The actual status"
-        type: String
-
-    status: null
-
-    constructor: (@config) ->
-      @id = config.id
-      @name = config.name
-      super()
-      plugin.on "weather", (forecast) =>
-        status = forecast.current.skytext
-        @status = status
-        @emit "status", status
-
-    getStatus: -> Q(@status)
+    getTemperature: -> Promise.resolve @temperature
+    getHumidity: -> Promise.resolve @humidity
+    getStatus: -> Promise.resolve @status
 
   plugin = new Weather
   return plugin
