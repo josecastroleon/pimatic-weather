@@ -6,7 +6,8 @@
   "files": [
     "weather.coffee",
     "README.md",
-    "weather-config-schema.coffee"
+    "weather-config-schema.coffee",
+    "device-config-schema.coffee"
   ],
   "version": "0.8.0",
   "homepage": "http://your-plugin-website",
