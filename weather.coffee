@@ -17,21 +17,27 @@ module.exports = (env) ->
 
   class WeatherDevice extends env.devices.Device
     attributes:
+      status:
+        description: "The actual status"
+        type: "string"
+      windspeed:
+        description: "The wind speed"
+        type: "number"
+        unit: 'km/h'
       temperature:
-        description: "the messured temperature"
+        description: "The messured temperature"
         type: "number"
         unit: '°C'
       humidity:
         description: "The actual degree of Humidity"
         type: "number"
         unit: '%'
-      status:
-        description: "The actual status"
-        type: "string"
+
 
     temperature: 0.0
     humidity: 0.0
     status: ''
+    windspeed: 0.0
 
     constructor: (@config) ->
       @id = config.id
@@ -56,10 +62,12 @@ module.exports = (env) ->
           @emit "temperature", Number result[0].current.temperature
           @emit "humidity", Number result[0].current.humidity 
           @emit "status", result[0].current.skytext
+          @emit "windspeed", Number result[0].current.windspeed
 
     getTemperature: -> Promise.resolve @temperature
     getHumidity: -> Promise.resolve @humidity
     getStatus: -> Promise.resolve @status
+    getWindspeed : -> Promise.resolve @windspeed
 
   plugin = new Weather
   return plugin
