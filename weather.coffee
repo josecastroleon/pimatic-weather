@@ -17,6 +17,9 @@ module.exports = (env) ->
 
   class WeatherDevice extends env.devices.Device
     attributes:
+      status:
+        description: "The actual status"
+        type: "string"
       temperature:
         description: "the messured temperature"
         type: "number"
@@ -25,9 +28,7 @@ module.exports = (env) ->
         description: "The actual degree of Humidity"
         type: "number"
         unit: '%'
-      status:
-        description: "The actual status"
-        type: "string"
+
 
     temperature: 0.0
     humidity: 0.0
