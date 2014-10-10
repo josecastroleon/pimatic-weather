@@ -118,10 +118,10 @@ module.exports = (env) ->
       , (err, result) =>
         env.logger.error("err") if err
         if result
-          @emit "low", Number result[0].forecast[day].low
-          @emit "high", Number result[0].forecast[day].high
-          @emit "forecast", result[0].forecast[day].skytext
-          @emit "precipitation", Number result[0].forecast[day].precip
+          @emit "low", Number result[0].forecast[@day].low
+          @emit "high", Number result[0].forecast[@day].high
+          @emit "forecast", result[0].forecast[@day].skytextday
+          @emit "precipitation", Number result[0].forecast[@day].precip
 
     getLow: -> Promise.resolve @low
     getHigh: -> Promise.resolve @high
