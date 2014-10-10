@@ -14,6 +14,10 @@ module.exports = (env) ->
         configDef: deviceConfigDef.WeatherDevice, 
         createCallback: (config) => new WeatherDevice(config)
       })
+      @framework.deviceManager.registerDeviceClass("WeatherForecastDevice", {
+        configDef: deviceConfigDef.WeatherForecastDevice,
+        createCallback: (config) => new WeatherForecastDevice(config)
+      })
 
   class WeatherDevice extends env.devices.Device
     attributes:
@@ -68,6 +72,61 @@ module.exports = (env) ->
     getHumidity: -> Promise.resolve @humidity
     getStatus: -> Promise.resolve @status
     getWindspeed : -> Promise.resolve @windspeed
+
+  class WeatherForecastDevice extends env.devices.Device
+    attributes:
+      low:
+        description: "The minimum temperature"
+        type: "number"
+        unit: '°C'
+      high:
+        description: "The maximum temperature"
+        type: "number"
+        unit: '°C'
+      forecast:
+        description: "The expected forecast"
+        type: "string"
+      precipitation:
+        description: "The expected degree of precipitation"
+        type: "number"
+        unit: '%'
+
+
+    low: 0.0
+    high: 0.0
+    forecast: ''
+    precipitation: 0.0
+
+    constructor: (@config) ->
+      @id = config.id
+      @name = config.name
+      @degreeType = config.degreeType
+      @timeout = config.timeout
+      @day = config.day
+      super()
+
+      @requestForecast()
+      setInterval( =>
+        @requestForecast()
+      , @timeout
+      )
+
+    requestForecast: () =>
+      weatherLib.find
+        search: @name
+        degreeType: @degreeType
+      , (err, result) =>
+        env.logger.error("err") if err
+        if result
+          @emit "low", Number result[0].forecast[day].low
+          @emit "high", Number result[0].forecast[day].high
+          @emit "forecast", result[0].forecast[day].skytext
+          @emit "precipitation", Number result[0].forecast[day].precip
+
+    getLow: -> Promise.resolve @low
+    getHigh: -> Promise.resolve @high
+    getForecast: -> Promise.resolve @forecast
+    getPrecipitation : -> Promise.resolve @precipitation
 
   plugin = new Weather
   return plugin
