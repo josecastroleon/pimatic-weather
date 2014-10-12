@@ -75,6 +75,9 @@ module.exports = (env) ->
 
   class WeatherForecastDevice extends env.devices.Device
     attributes:
+      forecast:
+        description: "The expected forecast"
+        type: "string"
       low:
         description: "The minimum temperature"
         type: "number"
@@ -83,9 +86,6 @@ module.exports = (env) ->
         description: "The maximum temperature"
         type: "number"
         unit: '°C'
-      forecast:
-        description: "The expected forecast"
-        type: "string"
       precipitation:
         description: "The expected degree of precipitation"
         type: "number"
