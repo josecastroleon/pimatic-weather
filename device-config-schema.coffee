@@ -4,6 +4,9 @@ module.exports ={
     title: "WeatherDevice config options"
     type: "object"
     properties: 
+      location:
+        description: "City/country"
+        format: String
       degreeType:
         description: "Degree type of Temperature"
         format: String
@@ -17,6 +20,9 @@ module.exports ={
     title: "WeatherForecastDevice config options"
     type: "object"
     properties:
+      location:
+        description: "City/country"
+        format: String
       degreeType:
         description: "Degree type of Temperature"
         format: String
