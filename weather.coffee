@@ -61,7 +61,9 @@ module.exports = (env) ->
         search: @name
         degreeType: @degreeType
       , (err, result) =>
-        env.logger.error("err") if err
+        if err
+          env.logger.error(err.message)
+          env.logger.debug(err) 
         if result
           @emit "temperature", Number result[0].current.temperature
           @emit "humidity", Number result[0].current.humidity 
