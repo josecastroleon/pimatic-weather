@@ -46,6 +46,7 @@ module.exports = (env) ->
     constructor: (@config) ->
       @id = config.id
       @name = config.name
+      @location = config.location
       @degreeType = config.degreeType
       @timeout = config.timeout
       super()
@@ -58,7 +59,7 @@ module.exports = (env) ->
 
     requestForecast: () =>
       weatherLib.find
-        search: @name
+        search: @location
         degreeType: @degreeType
       , (err, result) =>
         if err
@@ -102,6 +103,7 @@ module.exports = (env) ->
     constructor: (@config) ->
       @id = config.id
       @name = config.name
+      @location = config.location
       @degreeType = config.degreeType
       @timeout = config.timeout
       @day = config.day
@@ -115,7 +117,7 @@ module.exports = (env) ->
 
     requestForecast: () =>
       weatherLib.find
-        search: @name
+        search: @location
         degreeType: @degreeType
       , (err, result) =>
         env.logger.error("err") if err
