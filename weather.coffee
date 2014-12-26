@@ -5,6 +5,7 @@ module.exports = (env) ->
   assert = env.require 'cassert'
   
   weatherLib = require "weather-js"
+  Promise.promisifyAll(weatherLib)
 
   class Weather extends env.plugins.Plugin
     init: (app, @framework, @config) =>
@@ -37,12 +38,6 @@ module.exports = (env) ->
         type: "number"
         unit: '%'
 
-
-    temperature: 0.0
-    humidity: 0.0
-    status: ''
-    windspeed: 0.0
-
     constructor: (@config) ->
       @id = config.id
       @name = config.name
@@ -52,29 +47,31 @@ module.exports = (env) ->
       super()
 
       @requestForecast()
+
       setInterval( =>
         @requestForecast()
       , @timeout
       )
 
     requestForecast: () =>
-      weatherLib.find
+      return @_currentRequest = weatherLib.findAsync(
         search: @location
         degreeType: @degreeType
-      , (err, result) =>
-        if err
-          env.logger.error(err.message)
-          env.logger.debug(err) 
-        if result
-          @emit "temperature", Number result[0].current.temperature
-          @emit "humidity", Number result[0].current.humidity 
-          @emit "status", result[0].current.skytext
-          @emit "windspeed", Number result[0].current.windspeed
-
-    getTemperature: -> Promise.resolve @temperature
-    getHumidity: -> Promise.resolve @humidity
-    getStatus: -> Promise.resolve @status
-    getWindspeed : -> Promise.resolve @windspeed
+      ).then( (results) =>
+        @emit "temperature", Number results[0].current.temperature
+        @emit "humidity", Number results[0].current.humidity 
+        @emit "status", results[0].current.skytext
+        @emit "windspeed", Number results[0].current.windspeed
+        return results[0]
+      ).catch( (error) =>
+        env.logger.error(err.message)
+        env.logger.debug(err) 
+      )
+      
+    getTemperature: -> @_currentRequest.then( (result) => Number result.current.temperature )
+    getHumidity: -> @_currentRequest.then( (result) => Number result.current.humidity )
+    getStatus: -> @_currentRequest.then( (result) => result.current.skytext )
+    getWindspeed : -> @_currentRequest.then( (result) => Number result.current.windspeed )
 
   class WeatherForecastDevice extends env.devices.Device
     attributes:
@@ -94,12 +91,6 @@ module.exports = (env) ->
         type: "number"
         unit: '%'
 
-
-    low: 0.0
-    high: 0.0
-    forecast: ''
-    precipitation: 0.0
-
     constructor: (@config) ->
       @id = config.id
       @name = config.name
@@ -116,21 +107,24 @@ module.exports = (env) ->
       )
 
     requestForecast: () =>
-      weatherLib.find
+      return @_currentRequest = weatherLib.findAsync(
         search: @location
         degreeType: @degreeType
-      , (err, result) =>
-        env.logger.error("err") if err
-        if result
-          @emit "low", Number result[0].forecast[@day].low
-          @emit "high", Number result[0].forecast[@day].high
-          @emit "forecast", result[0].forecast[@day].skytextday
-          @emit "precipitation", Number result[0].forecast[@day].precip
+      ).then( (results) =>
+        @emit "low", Number results[0].forecast[@day].low
+        @emit "high", Number results[0].forecast[@day].high
+        @emit "forecast", results[0].forecast[@day].skytextday
+        @emit "precipitation", Number results[0].forecast[@day].precip
+        return results[0]
+      ).catch( (error) =>
+        env.logger.error(err.message)
+        env.logger.debug(err) 
+      )
 
-    getLow: -> Promise.resolve @low
-    getHigh: -> Promise.resolve @high
-    getForecast: -> Promise.resolve @forecast
-    getPrecipitation : -> Promise.resolve @precipitation
+    getLow: -> @_currentRequest.then( (result) => Number result.forecast[@day].low )
+    getHigh: -> @_currentRequest.then( (result) => Number result.forecast[@day].high )
+    getForecast: -> @_currentRequest.then( (result) => result.forecast[@day].skytextday )
+    getPrecipitation : -> @_currentRequest.then( (result) => Number result.forecast[@day].precip )
 
   plugin = new Weather
   return plugin
