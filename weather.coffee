@@ -38,11 +38,6 @@ module.exports = (env) ->
         type: "number"
         unit: '%'
 
-    status: "Unknown"
-    windspeed: 0.0
-    temperature: 0.0
-    humidity: 0
-
     constructor: (@config) ->
       @id = config.id
       @name = config.name
@@ -56,26 +51,24 @@ module.exports = (env) ->
       setInterval(@requestForecast, @timeout)
 
     requestForecast: () =>
-      weatherLib.findAsync(
+      return @_currentRequest = weatherLib.findAsync(
         search: @location
         lang: @lang
-        degreeType: @degreeType
-        timeout: @timeout
       ).then( (results) =>
         @emit "temperature", Number results[0].current.temperature
         @emit "humidity", Number results[0].current.humidity 
         @emit "status", results[0].current.skytext
         @emit "windspeed", Number results[0].current.windspeed
         return results[0]
-      ).catch( (err) =>
+      ).catch( (error) =>
         env.logger.error(err.message)
-        env.logger.debug(err)
+        env.logger.debug(err) 
       )
-
-    getTemperature: -> Promise.resolve @temperature
-    getHumidity: -> Promise.resolve @humidity
-    getStatus: -> Promise.resolve @status
-    getWindspeed : -> Promise.resolve @windspeed
+      
+    getTemperature: -> @_currentRequest.then( (result) => Number result.current.temperature )
+    getHumidity: -> @_currentRequest.then( (result) => Number result.current.humidity )
+    getStatus: -> @_currentRequest.then( (result) => result.current.skytext )
+    getWindspeed : -> @_currentRequest.then( (result) => Number result.current.windspeed )
 
   class WeatherForecastDevice extends env.devices.Device
     attributes:
@@ -95,11 +88,6 @@ module.exports = (env) ->
         type: "number"
         unit: '%'
 
-    forecast: "Unknown"
-    low: 0.0
-    high: 0.0
-    precipitation: 0
-
     constructor: (@config) ->
       @id = config.id
       @name = config.name
@@ -114,26 +102,25 @@ module.exports = (env) ->
       setInterval(@requestForecast, @timeout)
 
     requestForecast: () =>
-      weatherLib.findAsync(
+      return @_currentRequest = weatherLib.findAsync(
         search: @location
         lang: @lang
         degreeType: @degreeType
-        timeout: @timeout
       ).then( (results) =>
         @emit "low", Number results[0].forecast[@day].low
         @emit "high", Number results[0].forecast[@day].high
         @emit "forecast", results[0].forecast[@day].skytextday
         @emit "precipitation", Number results[0].forecast[@day].precip
         return results[0]
-      ).catch( (err) =>
+      ).catch( (error) =>
         env.logger.error(err.message)
         env.logger.debug(err) 
       )
 
-    getLow: -> Promise.resolve @low
-    getHigh: -> Promise.resolve @high
-    getForecast: -> Promise.resolve @forecast
-    getPrecipitation : -> Promise.resolve @precipitation
+    getLow: -> @_currentRequest.then( (result) => Number result.forecast[@day].low )
+    getHigh: -> @_currentRequest.then( (result) => Number result.forecast[@day].high )
+    getForecast: -> @_currentRequest.then( (result) => result.forecast[@day].skytextday )
+    getPrecipitation : -> @_currentRequest.then( (result) => Number result.forecast[@day].precip )
 
   plugin = new Weather
   return plugin
