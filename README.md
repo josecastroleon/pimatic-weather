@@ -16,7 +16,8 @@ Then add the device with the location into the devices section:
     {
       "id": "weather",
       "class": "WeatherDevice",
-      "name": "Geneva, Switzerland",
+      "name": "Weather Geneva",
+      "location": "Geneva, Switzerland",
       "degreeType": "C",
       "timeout": 300000
     }
@@ -26,7 +27,8 @@ If you need a forecast you can use the following device:
     {
       "id": "forecast",
       "class": "WeatherForecastDevice",
-      "name": "Geneva, Switzerland",
+      "name": "Forecast 1 day for Geneva",
+      "location": "Geneva, Switzerland",
       "degreeType": "C",
       "timeout": 300000,
       "day": 1
