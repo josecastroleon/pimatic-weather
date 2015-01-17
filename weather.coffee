@@ -46,12 +46,15 @@ module.exports = (env) ->
       @timeout = config.timeout
       super()
 
-      @requestForecast()
-
-      setInterval( =>
-        @requestForecast()
-      , @timeout
+      requestForecast = ( =>
+        @requestForecast().catch( (err) =>
+          env.logger.error(err.message)
+          env.logger.debug(err) 
+        )
       )
+
+      setInterval(requestForecast, @timeout)
+      requestForecast()
 
     requestForecast: () =>
       return @_currentRequest = weatherLib.findAsync(
@@ -63,9 +66,6 @@ module.exports = (env) ->
         @emit "status", results[0].current.skytext
         @emit "windspeed", Number results[0].current.windspeed
         return results[0]
-      ).catch( (error) =>
-        env.logger.error(err.message)
-        env.logger.debug(err) 
       )
       
     getTemperature: -> @_currentRequest.then( (result) => Number result.current.temperature )
@@ -100,11 +100,15 @@ module.exports = (env) ->
       @day = config.day
       super()
 
-      @requestForecast()
-      setInterval( =>
-        @requestForecast()
-      , @timeout
+      requestForecast = ( =>
+        @requestForecast().catch( (err) =>
+          env.logger.error(err.message)
+          env.logger.debug(err) 
+        )
       )
+
+      setInterval(requestForecast, @timeout)
+      requestForecast()
 
     requestForecast: () =>
       return @_currentRequest = weatherLib.findAsync(
