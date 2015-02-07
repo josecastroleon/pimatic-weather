@@ -47,6 +47,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @location = config.location
+      @lang = config.lang
       @degreeType = config.degreeType
       @timeout = config.timeout
       super()
@@ -57,7 +58,9 @@ module.exports = (env) ->
     requestForecast: () =>
       weatherLib.findAsync(
         search: @location
+        lang: @lang
         degreeType: @degreeType
+        timeout: @timeout
       ).then( (results) =>
         @emit "temperature", Number results[0].current.temperature
         @emit "humidity", Number results[0].current.humidity 
@@ -101,6 +104,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @location = config.location
+      @lang = config.lang
       @degreeType = config.degreeType
       @timeout = config.timeout
       @day = config.day
@@ -112,7 +116,9 @@ module.exports = (env) ->
     requestForecast: () =>
       weatherLib.findAsync(
         search: @location
+        lang: @lang
         degreeType: @degreeType
+        timeout: @timeout
       ).then( (results) =>
         @emit "low", Number results[0].forecast[@day].low
         @emit "high", Number results[0].forecast[@day].high
