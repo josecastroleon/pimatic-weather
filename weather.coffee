@@ -54,6 +54,8 @@ module.exports = (env) ->
       return @_currentRequest = weatherLib.findAsync(
         search: @location
         lang: @lang
+        degreeType: @degreeType
+        timeout: @timeout
       ).then( (results) =>
         @emit "temperature", Number results[0].current.temperature
         @emit "humidity", Number results[0].current.humidity 
@@ -106,6 +108,7 @@ module.exports = (env) ->
         search: @location
         lang: @lang
         degreeType: @degreeType
+        timeout: @timeout
       ).then( (results) =>
         @emit "low", Number results[0].forecast[@day].low
         @emit "high", Number results[0].forecast[@day].high
