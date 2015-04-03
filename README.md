@@ -18,6 +18,7 @@ Then add the device with the location into the devices section:
       "class": "WeatherDevice",
       "name": "Weather Geneva",
       "location": "Geneva, Switzerland",
+      "lang": "en-US",
       "degreeType": "C",
       "timeout": 300000
     }
@@ -29,6 +30,7 @@ If you need a forecast you can use the following device:
       "class": "WeatherForecastDevice",
       "name": "Forecast 1 day for Geneva",
       "location": "Geneva, Switzerland",
+      "lang": "en-US",
       "degreeType": "C",
       "timeout": 300000,
       "day": 1

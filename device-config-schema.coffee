@@ -7,6 +7,10 @@ module.exports ={
       location:
         description: "City/country"
         format: String
+      lang:
+        description: "Language"
+        format: String
+        default: "en-US"
       degreeType:
         description: "Degree type of Temperature"
         format: String
@@ -23,6 +27,10 @@ module.exports ={
       location:
         description: "City/country"
         format: String
+      lang:
+        description: "Language"
+        format: String
+        default: "en-US"
       degreeType:
         description: "Degree type of Temperature"
         format: String
